@@ -28,6 +28,8 @@ let state = {
 let gameHistory = [];
 try { gameHistory = JSON.parse(localStorage.getItem('kubequest_history') || '[]'); } catch (e) {}
 
+let lbFilter = 'all';
+
 const diffConfig = {
   recruit:   { time: 15, lives: 3, label: 'RECRUIT',   key: 'recruit' },
   engineer:  { time: 12, lives: 2, label: 'ENGINEER',  key: 'engineer' },
@@ -66,6 +68,20 @@ const GRADE_SMALL = {
   'D+': 'gdp', 'D': 'gd',
 };
 
+const GRADE_KEY = {
+  'S': 'grade_S', 'A+': 'grade_Ap', 'A': 'grade_A', 'A-': 'grade_Am',
+  'B+': 'grade_Bp', 'B': 'grade_B', 'B-': 'grade_Bm',
+  'C+': 'grade_Cp', 'C': 'grade_C', 'C-': 'grade_Cm',
+  'D+': 'grade_Dp', 'D': 'grade_D',
+};
+
+const MSG_KEY = {
+  'S': 'msg_S', 'A+': 'msg_Ap', 'A': 'msg_A', 'A-': 'msg_Am',
+  'B+': 'msg_Bp', 'B': 'msg_B', 'B-': 'msg_Bm',
+  'C+': 'msg_Cp', 'C': 'msg_C', 'C-': 'msg_Cm',
+  'D+': 'msg_Dp', 'D': 'msg_D',
+};
+
 /* ===================================================
    NAVIGATION
 =================================================== */
@@ -75,7 +91,10 @@ function selectDiff(d, el) {
   el.classList.add('selected');
 }
 
-function goIntro() { show('intro'); }
+function goIntro() {
+  show('intro');
+  renderLeaderboard();
+}
 
 function show(s) {
   document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -87,7 +106,7 @@ function show(s) {
 =================================================== */
 function startGame() {
   const cfg = diffConfig[state.diff];
-  const pool = [...QUESTIONS[state.diff]];
+  const pool = [...getQuestions(state.diff)];
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -104,7 +123,7 @@ function startGame() {
   state.totalTime = 0;
   state.answerTimes = [];
   state.answered = false;
-  document.getElementById('hud-diff-badge').textContent = cfg.label;
+  document.getElementById('hud-diff-badge').textContent = t(state.diff);
   document.getElementById('hud-diff-badge').className = 'hud-diff diff-' + state.diff;
   updateHUD();
   show('game');
@@ -126,8 +145,8 @@ function loadQuestion() {
   const header = document.createElement('div');
   header.className = 'question-header';
   const tBadge = { qcm: 'qtype-qcm', tf: 'qtype-vrai', order: 'qtype-ordre', fill: 'qtype-type' };
-  const tLabel = { qcm: 'MCQ', tf: 'TRUE / FALSE', order: 'ORDER', fill: 'TYPE-IN' };
-  header.innerHTML = `<span class="q-number">Q${state.current + 1} / ${state.questions.length}</span><span class="q-category">${q.category}</span><span class="q-type-badge ${tBadge[q.type] || 'qtype-qcm'}">${tLabel[q.type] || 'MCQ'}</span>`;
+  const tLabelKey = { qcm: 'qtype_mcq', tf: 'qtype_tf', order: 'qtype_order', fill: 'qtype_fill' };
+  header.innerHTML = `<span class="q-number">Q${state.current + 1} / ${state.questions.length}</span><span class="q-category">${q.category}</span><span class="q-type-badge ${tBadge[q.type] || 'qtype-qcm'}">${t(tLabelKey[q.type]) || 'MCQ'}</span>`;
   area.appendChild(header);
 
   const card = document.createElement('div');
@@ -175,7 +194,7 @@ function answerQCM(i, q) {
 function buildTF(q, area) {
   const grid = document.createElement('div');
   grid.className = 'tf-grid';
-  ['TRUE', 'FALSE'].forEach((lbl, i) => {
+  [t('btn_true'), t('btn_false')].forEach((lbl, i) => {
     const btn = document.createElement('button');
     btn.className = `tf-btn ${i === 0 ? 'true-btn' : 'false-btn'}`;
     btn.textContent = lbl;
@@ -200,7 +219,7 @@ function buildTF(q, area) {
 function buildFill(q, area) {
   const wrap = document.createElement('div');
   wrap.className = 'fill-wrap';
-  wrap.innerHTML = `<input class="fill-input" id="fill-input" placeholder="Your answer..." autocomplete="off"><br><button class="fill-submit" onclick="submitFill()">SUBMIT ↵</button>`;
+  wrap.innerHTML = `<input class="fill-input" id="fill-input" placeholder="${t('fill_placeholder')}" autocomplete="off"><br><button class="fill-submit" onclick="submitFill()">${t('fill_submit')}</button>`;
   area.appendChild(wrap);
   setTimeout(() => {
     const inp = document.getElementById('fill-input');
@@ -228,12 +247,12 @@ function submitFill() {
 function buildOrder(q, area) {
   const wrap = document.createElement('div');
   wrap.className = 'order-wrap';
-  const shuffled = [...q.items.map((t, i) => ({ text: t, orig: i }))];
+  const shuffled = [...q.items.map((txt, i) => ({ text: txt, orig: i }))];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  wrap.innerHTML = `<div class="order-list" id="order-list"></div><button class="order-submit" onclick="submitOrder()">SUBMIT ORDER ↵</button>`;
+  wrap.innerHTML = `<div class="order-list" id="order-list"></div><button class="order-submit" onclick="submitOrder()">${t('order_submit')}</button>`;
   area.appendChild(wrap);
   const list = wrap.querySelector('#order-list');
   shuffled.forEach((item, i) => {
@@ -300,7 +319,7 @@ function handleResult(correct, q) {
     state.combo = 1;
     state.lives--;
     card.classList.add('flash-wrong');
-    showXP('-1 LIFE', false);
+    showXP(t('minus_life'), false);
     if (state.lives <= 0) { showFeedback(q, correct); return; }
   }
   updateHUD();
@@ -312,18 +331,18 @@ function showFeedback(q, correct) {
   const fb = document.createElement('div');
   fb.className = `feedback-bar ${correct ? 'correct-fb' : 'wrong-fb'}`;
   const over = state.lives <= 0;
-  fb.innerHTML = `<span class="feedback-icon">${correct ? '✓' : '✗'}</span><div><div class="feedback-title">${correct ? 'Correct!' : (over ? 'No lives left!' : 'Incorrect')}</div><div class="feedback-explain">${q.explain}</div>${q.code ? `<code class="feedback-code">${q.code}</code>` : ''}</div>`;
+  fb.innerHTML = `<span class="feedback-icon">${correct ? '✓' : '✗'}</span><div><div class="feedback-title">${correct ? t('correct') : (over ? t('no_lives') : t('incorrect'))}</div><div class="feedback-explain">${q.explain}</div>${q.code ? `<code class="feedback-code">${q.code}</code>` : ''}</div>`;
   area.appendChild(fb);
   const btn = document.createElement('button');
   btn.className = 'next-btn';
   if (over) {
-    btn.textContent = 'VIEW RESULTS ▶';
+    btn.textContent = t('view_results');
     btn.onclick = endGame;
   } else if (state.current >= state.questions.length - 1) {
-    btn.textContent = 'VIEW RESULTS ▶';
+    btn.textContent = t('view_results');
     btn.onclick = () => { state.current++; endGame(); };
   } else {
-    btn.textContent = 'NEXT QUESTION ▶';
+    btn.textContent = t('next_question');
     btn.onclick = () => { state.current++; loadQuestion(); };
   }
   area.appendChild(btn);
@@ -388,6 +407,45 @@ function updateHUD() {
 }
 
 /* ===================================================
+   LEADERBOARD (intro screen)
+=================================================== */
+function setLbFilter(filter, el) {
+  lbFilter = filter;
+  document.querySelectorAll('.lb-filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const el = document.getElementById('leaderboard-list');
+  if (!el) return;
+  el.innerHTML = '';
+
+  let filtered = [...gameHistory];
+  if (lbFilter !== 'all') {
+    filtered = filtered.filter(e => e.diffKey === lbFilter);
+  }
+  // Sort by score descending
+  filtered.sort((a, b) => b.score - a.score);
+  // Top 10
+  filtered = filtered.slice(0, 10);
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="history-empty">${t('lb_empty')}</div>`;
+    return;
+  }
+
+  const diffCls = { recruit: 'diff-recruit', engineer: 'diff-engineer', architect: 'diff-architect' };
+  filtered.forEach((e, i) => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`;
+    item.innerHTML = `<span class="hi-num">${medal}</span><span class="hi-grade ${GRADE_SMALL[e.grade] || 'gd'}">${e.grade}</span><div class="hi-info"><span class="hi-score">${e.score.toLocaleString('en-US')} pts</span><span class="hi-acc">${e.correct}/${e.total} · ${e.acc}%</span></div><span class="hi-diff ${diffCls[e.diffKey] || ''}">${e.diff}</span><span class="hi-date">${e.date} ${e.time}</span>`;
+    el.appendChild(item);
+  });
+}
+
+/* ===================================================
    END GAME
 =================================================== */
 function endGame() {
@@ -399,28 +457,7 @@ function endGame() {
   const speedPct = Math.max(0, Math.min(100, Math.round(100 - ((parseFloat(avgTime) / state.maxTime) * 100))));
   const grade = computeGrade(acc);
 
-  const TITLES = {
-    'S': 'ABSOLUTE PERFECTION', 'A+': 'OUTSTANDING', 'A': 'EXCELLENT', 'A-': 'VERY GOOD',
-    'B+': 'GOOD +', 'B': 'GOOD', 'B-': 'FAIR',
-    'C+': 'PASSABLE +', 'C': 'PASSABLE', 'C-': 'INSUFFICIENT',
-    'D+': 'NEEDS WORK', 'D': 'TRY AGAIN',
-  };
-  const MSGS = {
-    'S': "Perfect score! You've mastered Kubernetes at an extraordinary level. You're ready for any interview.",
-    'A+': "Near perfect! A few rare points to polish, but your level is truly impressive.",
-    'A': "Excellent level! Your K8s knowledge is solid. Keep it up.",
-    'A-': "Great work! A slight review on a few points and you'll nail it.",
-    'B+': "Good level, just below excellent. Review the missed questions.",
-    'B': "Good job! The foundations are there, keep practicing the shaky areas.",
-    'B-': "Pretty good, but some gaps to fill. Review the cheatsheet.",
-    'C+': "Room for improvement. Focus on Architecture and Networking topics.",
-    'C': "Gaps to fill. Re-read the cheatsheet, especially the failed sections.",
-    'C-': "Fundamentals need strengthening. Try again in RECRUIT mode to consolidate basics.",
-    'D+': "Insufficient level. Re-read all the concepts before trying again.",
-    'D': "Don't panic! Kubernetes takes practice. Start with the basics in RECRUIT mode.",
-  };
-
-  document.getElementById('res-title').textContent = TITLES[grade] || 'RESULTS';
+  document.getElementById('res-title').textContent = t(GRADE_KEY[grade]) || 'RESULTS';
   const gradeEl = document.getElementById('res-grade');
   gradeEl.textContent = grade;
   gradeEl.className = 'result-grade ' + (GRADE_MEDAL[grade] || 'medal-d');
@@ -430,7 +467,7 @@ function endGame() {
   document.getElementById('res-time').textContent = avgTime + 's';
   document.getElementById('res-acc').textContent = acc + '%';
   document.getElementById('res-speed').textContent = speedPct + '%';
-  document.getElementById('res-msg').textContent = MSGS[grade] || '';
+  document.getElementById('res-msg').textContent = t(MSG_KEY[grade]) || '';
   setTimeout(() => {
     document.getElementById('res-acc-fill').style.width = acc + '%';
     document.getElementById('res-speed-fill').style.width = speedPct + '%';
@@ -446,7 +483,7 @@ function endGame() {
     ts: Date.now(),
   };
   gameHistory.unshift(entry);
-  if (gameHistory.length > 10) gameHistory = gameHistory.slice(0, 10);
+  if (gameHistory.length > 50) gameHistory = gameHistory.slice(0, 50);
   try { localStorage.setItem('kubequest_history', JSON.stringify(gameHistory)); } catch (e) {}
   renderHistory(entry.ts);
 }
@@ -455,15 +492,27 @@ function renderHistory(currentTs) {
   const el = document.getElementById('history-list');
   el.innerHTML = '';
   if (!gameHistory.length) {
-    el.innerHTML = '<div class="history-empty">No games recorded yet.</div>';
+    el.innerHTML = `<div class="history-empty">${t('history_empty')}</div>`;
     return;
   }
   const diffCls = { recruit: 'diff-recruit', engineer: 'diff-engineer', architect: 'diff-architect' };
-  gameHistory.forEach((e, i) => {
+  gameHistory.slice(0, 10).forEach((e, i) => {
     const item = document.createElement('div');
     const isCur = e.ts === currentTs;
     item.className = 'history-item' + (isCur ? ' current-run' : '');
-    item.innerHTML = `<span class="hi-num">#${i + 1}</span><span class="hi-grade ${GRADE_SMALL[e.grade] || 'gd'}">${e.grade}</span><div class="hi-info"><span class="hi-score">${e.score.toLocaleString('en-US')} pts</span><span class="hi-acc">${e.correct}/${e.total} · ${e.acc}%</span></div><span class="hi-diff ${diffCls[e.diffKey] || ''}">${e.diff}</span><span class="hi-date">${e.date} ${e.time}</span>${isCur ? '<span class="hi-new">NEW</span>' : ''}`;
+    item.innerHTML = `<span class="hi-num">#${i + 1}</span><span class="hi-grade ${GRADE_SMALL[e.grade] || 'gd'}">${e.grade}</span><div class="hi-info"><span class="hi-score">${e.score.toLocaleString('en-US')} pts</span><span class="hi-acc">${e.correct}/${e.total} · ${e.acc}%</span></div><span class="hi-diff ${diffCls[e.diffKey] || ''}">${e.diff}</span><span class="hi-date">${e.date} ${e.time}</span>${isCur ? `<span class="hi-new">${t('new_badge')}</span>` : ''}`;
     el.appendChild(item);
   });
 }
+
+/* ===================================================
+   INIT
+=================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  updateAllText();
+  renderLeaderboard();
+  // Set active lang button
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === currentLang);
+  });
+});
