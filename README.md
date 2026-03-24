@@ -29,10 +29,10 @@ Wrong answers cost a ❤️ : run out and it's game over.
 
 ## Play Online
 
-👉 **[lucas-jammes.github.io/KubeQuest](https://lucas-jammes.github.io/KubeQuest/, "Click to play")**
+👉 **[lucas-jammes.github.io/KubeQuest](https://lucas-jammes.github.io/KubeQuest/ "Click to play")**
 
 No install, no signup, no backend.  
 
 ## License
 
-This project is licensed under the [MIT](LICENSE, "Link to LICENSE file") license.
+This project is licensed under the [MIT](LICENSE "Link to LICENSE file") license.
