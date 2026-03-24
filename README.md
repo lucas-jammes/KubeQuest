@@ -1,96 +1,34 @@
-# ⎈ KubeQuest
+# KubeQuest
 
-**Kubernetes Training Simulator** — Learn and test your K8s knowledge through a gamified interactive quiz.
+**Think you know Kubernetes? Prove it.** KubeQuest is a fast-paced quiz game that challenges your K8s knowledge across 60+ questions — from basic Pod concepts to advanced scheduling and security scenarios.
 
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+## How to Play
 
-## Features
+Pick a difficulty, answer questions before time runs out, and try not to lose all your lives. Build combos for bonus points and aim for the S grade.
 
-- **3 difficulty levels**: Recruit, Engineer, Architect
-- **4 question types**: MCQ, True/False, Ordering, Type-in
-- **60+ questions** covering the entire Kubernetes ecosystem
-- **Scoring system** with combos, timer, and lives
-- **Fine-grained grading** from S to D (12 grades)
-- **Local history** of the last 10 games (localStorage)
-- **100% client-side** — no backend required
+| Difficulty | Timer | Lives | Style |
+|------------|-------|-------|-------|
+| 🟢 **Recruit** | 15s | 3 | Core concepts, vocabulary |
+| 🔵 **Engineer** | 12s | 2 | Commands, debugging, workloads |
+| 🟣 **Architect** | 8s | 1 | Security, scheduling, real-world scenarios |
 
-## Topics Covered
+## Question Types
 
-| Category | Examples |
-|----------|----------|
-| Architecture | Control plane, etcd, kubelet, API Server |
-| Workloads | Deployments, StatefulSets, DaemonSets, CronJobs |
-| Networking | Services, Ingress, CNI, NetworkPolicies, CoreDNS |
-| Security | RBAC, PSA, Secrets, ServiceAccounts, AuthN/AuthZ |
-| Scheduling | Taints/Tolerations, Affinity, Preemption, QoS |
-| Config | ConfigMaps, Secrets, PV/PVC |
-| Debugging | CrashLoopBackOff, Pending, OOMKilled |
-| Commands | kubectl logs, exec, rollout, describe |
+- **MCQ** — Pick the right answer among four choices
+- **True / False** — Quick-fire knowledge checks
+- **Ordering** — Drag and drop steps in the correct sequence
+- **Type-in** — No hints, type the exact answer
 
-## Project Structure
+## Grading
 
-```
-kubequest/
-├── index.html          # Main page
-├── css/
-│   └── style.css       # Styles (sci-fi HUD theme)
-├── js/
-│   ├── questions.js    # Question bank (3 levels)
-│   └── game.js         # Game logic
-├── LICENSE
-└── README.md
-```
+Your performance is rated from **S** (perfect) down to **D**, based on accuracy. Every correct answer earns points, and consecutive correct answers build a combo multiplier. Wrong answers cost a life — run out and it's game over.
 
-## Deployment
+## Play Online
 
-### GitHub Pages
+👉 **[lucas-jammes.github.io/KubeQuest](https://lucas-jammes.github.io/KubeQuest/, "Click to play")**
 
-1. Push this repo to GitHub
-2. Go to **Settings > Pages**
-3. Source: **Deploy from a branch** → `main` / `/ (root)`
-4. The site will be available at `https://<username>.github.io/kubequest/`
-
-### Local
-
-Open `index.html` in a browser, or use a local server:
-
-```bash
-# Python
-python3 -m http.server 8080
-
-# Node.js
-npx serve .
-```
-
-## Adding Questions
-
-Edit `js/questions.js` and add objects to the desired level's array:
-
-```javascript
-// MCQ
-{
-  type: 'qcm',
-  category: 'Architecture',
-  question: "Your question here?",
-  hint: 'Optional hint',                       // optional
-  options: ['A', 'B', 'C', 'D'],
-  answer: 1,                                    // 0-based index
-  explain: "Detailed explanation.",
-  code: "kubectl get pods"                      // optional
-}
-
-// True/False
-{ type: 'tf', category: 'Concepts', question: "...", answer: true, explain: "..." }
-
-// Ordering
-{ type: 'order', category: 'Workloads', question: "...", items: ['A','B','C'], answer: [0,1,2], explain: "..." }
-
-// Type-in
-{ type: 'fill', category: 'Commands', question: "...", answer: 'kubectl', alts: ['k'], explain: "..." }
-```
+No install, no signup, no backend — just open and play.
 
 ## License
 
-MIT
+This project is licensed under the [MIT](LICENSE, "Link to LICENSE file") license.
