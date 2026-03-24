@@ -9,54 +9,75 @@
 </head>
 <body>
 
+<!-- LANGUAGE SWITCHER -->
+<div class="lang-switcher">
+  <button class="lang-btn active" data-lang="en" onclick="setLang('en')" title="English">🇬🇧</button>
+  <button class="lang-btn" data-lang="fr" onclick="setLang('fr')" title="Français">🇫🇷</button>
+</div>
+
 <!-- INTRO -->
 <div id="screen-intro" class="screen active">
   <div class="logo-wrap">
     <span class="logo-symbol">⎈</span>
     <div class="logo-title">KUBEQUEST</div>
-    <div class="logo-sub">Kubernetes Training Simulator</div>
+    <div class="logo-sub" id="txt-subtitle">Kubernetes Training Simulator</div>
   </div>
-  <p class="tagline">Master Kubernetes — from pods to full cluster.</p>
+  <p class="tagline" id="txt-tagline">Master Kubernetes — from pods to full cluster.</p>
   <div class="difficulty-grid">
     <div class="diff-card d-recruit" onclick="selectDiff('recruit',this)">
       <span class="diff-icon">🟢</span>
-      <div class="diff-name">RECRUIT</div>
-      <div class="diff-desc">Starting from scratch? Begin here. Vocabulary, core concepts, architecture.</div>
+      <div class="diff-name" id="txt-recruit">RECRUIT</div>
+      <div class="diff-desc" id="txt-recruit-desc">Starting from scratch? Begin here. Vocabulary, core concepts, architecture.</div>
       <div class="diff-tags">
         <span class="diff-tag">15s / question</span>
-        <span class="diff-tag">3 lives</span>
-        <span class="diff-tag">MCQ</span>
+        <span class="diff-tag" id="txt-recruit-lives">3 lives</span>
+        <span class="diff-tag" id="txt-recruit-type">MCQ</span>
       </div>
     </div>
     <div class="diff-card d-engineer selected" onclick="selectDiff('engineer',this)">
       <span class="diff-icon">🔵</span>
-      <div class="diff-name">ENGINEER</div>
-      <div class="diff-desc">You know the basics. Commands, workloads, networking, configuration.</div>
+      <div class="diff-name" id="txt-engineer">ENGINEER</div>
+      <div class="diff-desc" id="txt-engineer-desc">You know the basics. Commands, workloads, networking, configuration.</div>
       <div class="diff-tags">
         <span class="diff-tag">12s / question</span>
-        <span class="diff-tag">2 lives</span>
-        <span class="diff-tag">Mixed</span>
+        <span class="diff-tag" id="txt-engineer-lives">2 lives</span>
+        <span class="diff-tag" id="txt-engineer-type">Mixed</span>
       </div>
     </div>
     <div class="diff-card d-architect" onclick="selectDiff('architect',this)">
       <span class="diff-icon">🟣</span>
-      <div class="diff-name">ARCHITECT</div>
-      <div class="diff-desc">Expert level. Security, RBAC, advanced scheduling, real-world scenarios.</div>
+      <div class="diff-name" id="txt-architect">ARCHITECT</div>
+      <div class="diff-desc" id="txt-architect-desc">Expert level. Security, RBAC, advanced scheduling, real-world scenarios.</div>
       <div class="diff-tags">
         <span class="diff-tag">8s / question</span>
-        <span class="diff-tag">1 life</span>
-        <span class="diff-tag">Expert</span>
+        <span class="diff-tag" id="txt-architect-lives">1 life</span>
+        <span class="diff-tag" id="txt-architect-type">Expert</span>
       </div>
     </div>
   </div>
-  <button class="btn-primary" onclick="startGame()">START MISSION ▶</button>
+
+  <!-- LEADERBOARD -->
+  <div class="leaderboard-wrap">
+    <div class="leaderboard-header">
+      <div class="leaderboard-title" id="txt-leaderboard">🏆 LEADERBOARD</div>
+      <div class="lb-filters">
+        <button class="lb-filter-btn active" onclick="setLbFilter('all',this)" id="txt-lb-all">ALL</button>
+        <button class="lb-filter-btn lb-recruit" onclick="setLbFilter('recruit',this)">🟢</button>
+        <button class="lb-filter-btn lb-engineer" onclick="setLbFilter('engineer',this)">🔵</button>
+        <button class="lb-filter-btn lb-architect" onclick="setLbFilter('architect',this)">🟣</button>
+      </div>
+    </div>
+    <div id="leaderboard-list"></div>
+  </div>
+
+  <button class="btn-primary" onclick="startGame()" id="txt-start">START MISSION ▶</button>
 </div>
 
 <!-- GAME -->
 <div id="screen-game" class="screen">
   <div class="hud">
-    <div class="hud-score"><span>SCORE</span><span id="hud-score-val">0</span></div>
-    <div class="hud-combo" id="hud-combo"><span>COMBO</span><span id="hud-combo-val">×1</span></div>
+    <div class="hud-score"><span id="txt-hud-score">SCORE</span><span id="hud-score-val">0</span></div>
+    <div class="hud-combo" id="hud-combo"><span id="txt-hud-combo">COMBO</span><span id="hud-combo-val">×1</span></div>
     <div class="hud-progress">
       <div class="progress-label">
         <span id="prog-label">Question 1 / 20</span>
@@ -76,28 +97,29 @@
   <div class="result-title" id="res-title">MISSION COMPLETE</div>
   <div class="result-grade" id="res-grade">A</div>
   <div class="result-stats">
-    <div class="stat-card"><div class="stat-val" id="res-score" style="color:var(--yellow)">0</div><div class="stat-label">Score</div></div>
-    <div class="stat-card"><div class="stat-val" id="res-correct" style="color:var(--green)">0</div><div class="stat-label">Correct</div></div>
-    <div class="stat-card"><div class="stat-val" id="res-combo" style="color:var(--orange)">×1</div><div class="stat-label">Best combo</div></div>
-    <div class="stat-card"><div class="stat-val" id="res-time" style="color:var(--cyan)">0s</div><div class="stat-label">Avg. time</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-score" style="color:var(--yellow)">0</div><div class="stat-label" id="txt-res-score-label">Score</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-correct" style="color:var(--green)">0</div><div class="stat-label" id="txt-res-correct-label">Correct</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-combo" style="color:var(--orange)">×1</div><div class="stat-label" id="txt-res-combo-label">Best combo</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-time" style="color:var(--cyan)">0s</div><div class="stat-label" id="txt-res-time-label">Avg. time</div></div>
   </div>
   <div class="result-bar-wrap">
-    <div class="result-bar-label"><span>Accuracy</span><span id="res-acc">0%</span></div>
+    <div class="result-bar-label"><span id="txt-accuracy">Accuracy</span><span id="res-acc">0%</span></div>
     <div class="result-bar"><div class="result-bar-fill" id="res-acc-fill" style="background:linear-gradient(90deg,var(--cyan),var(--green))"></div></div>
-    <div class="result-bar-label"><span>Speed</span><span id="res-speed">0%</span></div>
+    <div class="result-bar-label"><span id="txt-speed">Speed</span><span id="res-speed">0%</span></div>
     <div class="result-bar"><div class="result-bar-fill" id="res-speed-fill" style="background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
   </div>
   <p class="result-msg" id="res-msg"></p>
   <div class="history-wrap">
-    <div class="history-title">⎈ GAME HISTORY</div>
+    <div class="history-title" id="txt-history-title">⎈ GAME HISTORY</div>
     <div id="history-list"></div>
   </div>
   <div class="result-btns">
-    <button class="btn-secondary" onclick="goIntro()">MENU</button>
-    <button class="btn-primary" onclick="startGame()">PLAY AGAIN ▶</button>
+    <button class="btn-secondary" onclick="goIntro()" id="txt-menu">MENU</button>
+    <button class="btn-primary" onclick="startGame()" id="txt-play-again">PLAY AGAIN ▶</button>
   </div>
 </div>
 
+<script src="js/i18n.js"></script>
 <script src="js/questions.js"></script>
 <script src="js/game.js"></script>
 </body>
