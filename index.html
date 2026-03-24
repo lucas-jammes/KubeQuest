@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KubeQuest — Master Kubernetes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="screen-intro" class="screen active">
+  <div class="logo-wrap">
+    <span class="logo-symbol">⎈</span>
+    <div class="logo-title">KUBEQUEST</div>
+    <div class="logo-sub">Kubernetes Training Simulator</div>
+  </div>
+  <p class="tagline">Master Kubernetes — from pods to full cluster.</p>
+  <div class="difficulty-grid">
+    <div class="diff-card d-recruit" onclick="selectDiff('recruit',this)">
+      <span class="diff-icon">🟢</span>
+      <div class="diff-name">RECRUIT</div>
+      <div class="diff-desc">Starting from scratch? Begin here. Vocabulary, core concepts, architecture.</div>
+      <div class="diff-tags">
+        <span class="diff-tag">15s / question</span>
+        <span class="diff-tag">3 lives</span>
+        <span class="diff-tag">MCQ</span>
+      </div>
+    </div>
+    <div class="diff-card d-engineer selected" onclick="selectDiff('engineer',this)">
+      <span class="diff-icon">🔵</span>
+      <div class="diff-name">ENGINEER</div>
+      <div class="diff-desc">You know the basics. Commands, workloads, networking, configuration.</div>
+      <div class="diff-tags">
+        <span class="diff-tag">12s / question</span>
+        <span class="diff-tag">2 lives</span>
+        <span class="diff-tag">Mixed</span>
+      </div>
+    </div>
+    <div class="diff-card d-architect" onclick="selectDiff('architect',this)">
+      <span class="diff-icon">🟣</span>
+      <div class="diff-name">ARCHITECT</div>
+      <div class="diff-desc">Expert level. Security, RBAC, advanced scheduling, real-world scenarios.</div>
+      <div class="diff-tags">
+        <span class="diff-tag">8s / question</span>
+        <span class="diff-tag">1 life</span>
+        <span class="diff-tag">Expert</span>
+      </div>
+    </div>
+  </div>
+  <button class="btn-primary" onclick="startGame()">START MISSION ▶</button>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen">
+  <div class="hud">
+    <div class="hud-score"><span>SCORE</span><span id="hud-score-val">0</span></div>
+    <div class="hud-combo" id="hud-combo"><span>COMBO</span><span id="hud-combo-val">×1</span></div>
+    <div class="hud-progress">
+      <div class="progress-label">
+        <span id="prog-label">Question 1 / 20</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="hud-timer ok" id="hud-timer">15</div>
+    <div class="hud-lives" id="hud-lives">❤️❤️❤️</div>
+    <div class="hud-diff" id="hud-diff-badge">ENGINEER</div>
+  </div>
+  <div class="game-area" id="game-area"></div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="result-title" id="res-title">MISSION COMPLETE</div>
+  <div class="result-grade" id="res-grade">A</div>
+  <div class="result-stats">
+    <div class="stat-card"><div class="stat-val" id="res-score" style="color:var(--yellow)">0</div><div class="stat-label">Score</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-correct" style="color:var(--green)">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-combo" style="color:var(--orange)">×1</div><div class="stat-label">Best combo</div></div>
+    <div class="stat-card"><div class="stat-val" id="res-time" style="color:var(--cyan)">0s</div><div class="stat-label">Avg. time</div></div>
+  </div>
+  <div class="result-bar-wrap">
+    <div class="result-bar-label"><span>Accuracy</span><span id="res-acc">0%</span></div>
+    <div class="result-bar"><div class="result-bar-fill" id="res-acc-fill" style="background:linear-gradient(90deg,var(--cyan),var(--green))"></div></div>
+    <div class="result-bar-label"><span>Speed</span><span id="res-speed">0%</span></div>
+    <div class="result-bar"><div class="result-bar-fill" id="res-speed-fill" style="background:linear-gradient(90deg,var(--purple),var(--cyan))"></div></div>
+  </div>
+  <p class="result-msg" id="res-msg"></p>
+  <div class="history-wrap">
+    <div class="history-title">⎈ GAME HISTORY</div>
+    <div id="history-list"></div>
+  </div>
+  <div class="result-btns">
+    <button class="btn-secondary" onclick="goIntro()">MENU</button>
+    <button class="btn-primary" onclick="startGame()">PLAY AGAIN ▶</button>
+  </div>
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
