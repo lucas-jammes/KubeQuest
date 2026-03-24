@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════
-   K8S COMMANDER — Styles
+   KubeQuest Styles
    ══════════════════════════════════════════════════ */
 
 :root {
@@ -727,3 +727,79 @@ body::after {
   .history-item      { grid-template-columns: 22px 34px 1fr auto; }
   .hi-date, .hi-new  { display: none; }
 }
+
+/* ══════════════════════════════════════════════════
+   LANGUAGE SWITCHER
+   ══════════════════════════════════════════════════ */
+.lang-switcher {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  gap: 6px;
+}
+.lang-btn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+  opacity: .5;
+}
+.lang-btn:hover { opacity: .8; border-color: var(--border2); }
+.lang-btn.active {
+  opacity: 1;
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 200, 255, .2);
+}
+
+/* ══════════════════════════════════════════════════
+   LEADERBOARD
+   ══════════════════════════════════════════════════ */
+.leaderboard-wrap {
+  width: 100%;
+  max-width: 640px;
+  margin-bottom: 32px;
+  animation: fadeUp .8s .6s ease both;
+}
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.leaderboard-title {
+  font-family: var(--font-hud);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--yellow);
+}
+.lb-filters {
+  display: flex;
+  gap: 6px;
+}
+.lb-filter-btn {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 5px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.lb-filter-btn:hover { border-color: var(--border2); color: var(--text); }
+.lb-filter-btn.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0, 200, 255, .06);
+}
+.lb-recruit.active  { border-color: var(--green);  color: var(--green);  background: rgba(0, 255, 136, .06); }
+.lb-engineer.active { border-color: var(--cyan);   color: var(--cyan);   background: rgba(0, 200, 255, .06); }
+.lb-architect.active { border-color: var(--purple); color: var(--purple); background: rgba(168, 85, 247, .06); }
